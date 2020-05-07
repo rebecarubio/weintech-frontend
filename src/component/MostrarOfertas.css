@@ -1,0 +1,20 @@
+.MostrarOfertas {
+  width: 100%;
+  padding: 5rem;
+  margin-top: 3rem;
+}
+
+.MostrarOfertas input {
+  width: 100%;
+}
+
+.MostrarOfertas td {
+  padding: 1.5rem;
+}
+.MostrarOfertas th {
+  padding-left: 1.5rem;
+}
+
+.MostrarOfertas td:hover {
+  cursor: pointer;
+}
