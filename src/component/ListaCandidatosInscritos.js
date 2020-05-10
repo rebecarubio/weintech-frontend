@@ -32,7 +32,7 @@ const ListaCandidatosInscritos = () => {
     const res = await fetch(
       `${process.env.REACT_APP_API_ADDRESS}/api/oferta/${ofertaId}?populate=candidatos`,
       {
-        //mode: "cors",
+        mode: "cors",
         method: "GET",
         credentials: "include",
       }
@@ -45,11 +45,16 @@ const ListaCandidatosInscritos = () => {
 
   async function eliminarCandidato(candidatoId) {
     const res = await fetch(
-      `${process.env.REACT_APP_API_ADDRESS}/api/candidato/${candidatoId}`,
+      `${process.env.REACT_APP_API_ADDRESS}/api/oferta/${ofertaId}/borraCandidato`,
       {
-        //mode: "cors",
-        method: "DELETE",
+        mode: "cors",
+        method: "PATCH",
         credentials: "include",
+        body: JSON.stringify({ candidatoId: candidatoId }),
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
       }
     );
     const responseJson = await res.json();
@@ -76,7 +81,9 @@ const ListaCandidatosInscritos = () => {
         delay={{ show: 250, hide: 2000 }}
         overlay={renderTooltip(props.email)}
       >
-        <Button variant="success">Contactar</Button>
+        <Button as="a" href={"mailto:" + props.email} variant="success">
+          Contactar
+        </Button>
       </OverlayTrigger>
     );
   };
@@ -89,7 +96,7 @@ const ListaCandidatosInscritos = () => {
     <>
       <CardColumns>
         {candidatos.map((candidato, i) => (
-          <Card style={{ width: "17rem" }}>
+          <Card style={{ width: "17rem" }} className="m-2 text-center">
             <Card.Img
               fluid
               variant="top"
@@ -102,22 +109,31 @@ const ListaCandidatosInscritos = () => {
             />
 
             <Card.Body>
-              <Card.Title>{candidato.nombre}</Card.Title>
-              <Card.Text>{candidato.profesion}</Card.Text>
+              <Card.Title>
+                {candidato.nombre + " " + candidato.primerapellido}
+              </Card.Title>
+              {candidato.profesion && (
+                <Card.Text>{"Profesión: " + candidato.profesion}</Card.Text>
+              )}
               <Card.Text>{candidato.provincia}</Card.Text>
               <BotonEmail email={candidato.email}></BotonEmail>
-              <Button className="ml-2" variant="primary">
-                <Link
-                  to={
-                    `${process.env.REACT_APP_API_ADDRESS}/uploads/` +
-                    candidato.foto
-                  }
-                  target="_self"
-                  download
-                >
-                  Descargar CV
-                </Link>
-              </Button>
+
+              {candidato.cv && (
+                <Button variant="primary" className="ml-2">
+                  <a
+                    style={{ color: "inherit", textDecoration: "inherit" }}
+                    href={
+                      `${process.env.REACT_APP_API_ADDRESS}/uploads/` +
+                      candidato.cv
+                    }
+                    target="_blank"
+                    download
+                  >
+                    Descargar CV
+                  </a>
+                </Button>
+              )}
+
               <Button
                 className="mt-2"
                 variant="secondary"

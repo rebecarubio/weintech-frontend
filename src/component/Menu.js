@@ -11,32 +11,72 @@ const Menu = (props) => {
   return (
     <Navbar collapseOnSelect expand="lg" bg="dark" variant="dark">
       <NavLink className="navLink" to="/">
-        <Navbar.Brand style={{ display: "flex", alignItems: "center" }}>
+        <Navbar.Brand
+          style={{ display: "flex", alignItems: "center" }}
+          onClick={() => {
+            history.push("/");
+            window.location.reload();
+          }}
+        >
           <img src={logo} style={{ width: "4rem" }} />
         </Navbar.Brand>
       </NavLink>
       <Navbar.Toggle aria-controls="responsive-navbar-nav" />
       <Navbar.Collapse id="responsive-navbar-nav">
         <Nav className="mr-auto">
-          <Nav.Link className="navLink" href="/proyecto">
-            Proyecto
+          <Nav.Link>
+            <NavLink className="navLink" to="/proyecto">
+              Proyecto
+            </NavLink>
           </Nav.Link>
-          <Nav.Link href="/contacta">Contacta</Nav.Link>
+          <Nav.Link>
+            <NavLink className="navLink" to="/contacta">
+              Contacta
+            </NavLink>
+          </Nav.Link>
           <NavDropdown title="Recursos" id="collasible-nav-dropdown">
-            <NavDropdown.Item href="#action/3.1">Formación</NavDropdown.Item>
-            <NavDropdown.Item href="#action/3.2">Mentoria</NavDropdown.Item>
-            <NavDropdown.Item href="#action/3.3">
-              Otras Organizaciones
+            <NavDropdown.Item href="https://adalab.es/" target="_blank">
+              Adalab
+            </NavDropdown.Item>
+            <NavDropdown.Item
+              href="http://www.womeninmobile.org/"
+              target="_blank"
+            >
+              Women in Mobile
+            </NavDropdown.Item>
+            <NavDropdown.Item
+              href="https://codebar.io/barcelona"
+              target="_blank"
+            >
+              Codebar
+            </NavDropdown.Item>
+            <NavDropdown.Item
+              href="https://spain.girlsintech.org/"
+              target="_blank"
+            >
+              Girls in tech
+            </NavDropdown.Item>
+            <NavDropdown.Item
+              href="https://www.girldevelopit.com/"
+              target="_blank"
+            >
+              Girls develop it
             </NavDropdown.Item>
             <NavDropdown.Divider />
-            <NavDropdown.Item href="#action/3.4">
-              Separated link
+            <NavDropdown.Item href="https://www.allwomen.tech" target="_blank">
+              AllWomen Bootcamp
+            </NavDropdown.Item>
+            <NavDropdown.Item
+              href="https://madridforrefugees.org/es/la-organizacion/mfr-coding-es/"
+              target="_blank"
+            >
+              MFR Coding{" "}
             </NavDropdown.Item>
           </NavDropdown>
         </Nav>
         <Nav>
           {!auth.userId && (
-            <Nav.Link>
+            <Nav.Link className="navLink">
               <NavLink className="navLink" to="/login">
                 Acceso Candidato
               </NavLink>
@@ -51,7 +91,7 @@ const Menu = (props) => {
           )}
           {auth.userId && !auth.isEmpresa && (
             <Nav.Link>
-              <NavLink className="navLink" to={"/candidato/" + auth.userId}>
+              <NavLink className="navLink" to={"/espaciocandidato"}>
                 <Dropdown className="pr-5">
                   <Image
                     src={

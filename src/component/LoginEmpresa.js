@@ -34,6 +34,7 @@ const LoginEmpresa = () => {
     const respuesta = await fetch(
       `${process.env.REACT_APP_API_ADDRESS}/api/loginempresa`,
       {
+        mode: "cors",
         method: "POST",
         body: JSON.stringify(values),
         credentials: "include",

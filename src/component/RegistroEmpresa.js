@@ -31,7 +31,7 @@ const RegistroEmpresa = () => {
     password: "",
   });
 
-  const [showNotificacionError, setShowNotificacionError] = useState(false);
+  const [showNotificacion, setShowNotificacion] = useState(false);
 
   const handleSubmit = async (values) => {
     const formData = new FormData();
@@ -43,6 +43,7 @@ const RegistroEmpresa = () => {
     const respuesta = await fetch(
       `${process.env.REACT_APP_API_ADDRESS}/api/signupempresa`,
       {
+        mode: "cors",
         method: "POST",
         body: formData,
         credentials: "include",
@@ -52,11 +53,15 @@ const RegistroEmpresa = () => {
 
     if (respuestaJson.status === "success") {
       console.log(respuestaJson);
+      auth.login(respuestaJson.data);
       history.push("/empresa/" + respuestaJson.data._id);
     } else {
       //notificacion
-      setShowNotificacionError(respuestaJson.mensaje);
-      setTimeout(() => setShowNotificacionError(false), 2000);
+      setShowNotificacion({
+        mensaje: respuestaJson.mensaje,
+        variant: "danger",
+      });
+      setTimeout(() => setShowNotificacion(false), 2000);
       console.log(respuestaJson.mensaje);
     }
   };
@@ -157,7 +162,7 @@ const RegistroEmpresa = () => {
                         <Form.Group as={Col} controlId="validationFormikName">
                           <Form.Label>Contraseña</Form.Label>
                           <Form.Control
-                            type="text"
+                            type="password"
                             name="password"
                             placeholder="Contraseña"
                             value={values.password}
@@ -178,9 +183,9 @@ const RegistroEmpresa = () => {
                       </Form.Group>
                       <Form.Row>
                         <Notificacion
-                          show={showNotificacionError}
-                          variant="danger"
-                          mensaje="Empresa no válida"
+                          show={showNotificacion}
+                          variant={showNotificacion.variant}
+                          mensaje={showNotificacion.mensaje}
                         />
                       </Form.Row>
                       <Button className="mr-5 mt-4" type="submit">
@@ -191,7 +196,7 @@ const RegistroEmpresa = () => {
                         className="mt-4"
                         onClick={() => history.push("/")}
                       >
-                        Back to home
+                        Volver
                       </Button>
                     </Form>
                   )}

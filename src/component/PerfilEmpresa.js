@@ -9,6 +9,7 @@ import {
   Row,
 } from "react-bootstrap";
 import { useHistory, useParams, useLocation } from "react-router-dom";
+import { AuthContext } from "./../context/auth-context";
 
 import { Formik } from "formik";
 import * as yup from "yup";
@@ -20,8 +21,8 @@ const schema = yup.object({
   email: yup.string().email().required(),
   CIF: yup.string().matches(/^([ABCDEFGHJKLMNPQRSUVW])(\d{7})([0-9A-J])$/),
   direccion: yup.string(),
-  provincia: yup.string().required(),
-  telefono: yup.string().required(),
+  provincia: yup.string(),
+  telefono: yup.string(),
   descripcion: yup.string(),
 });
 
@@ -30,9 +31,12 @@ const PerfilEmpresa = () => {
   const { empresaId } = useParams();
   const history = useHistory();
   const [file, setFile] = useState({});
+  const auth = useContext(AuthContext);
 
   const [isLoading, setIsLoading] = useState(true);
   const [fetchedValues, setValues] = useState({});
+
+  console.log(file);
 
   const handleSubmit = async (values) => {
     console.log("toy aki");
@@ -54,16 +58,16 @@ const PerfilEmpresa = () => {
     const res = await fetch(
       `${process.env.REACT_APP_API_ADDRESS}/api/empresa/${empresaId}/`,
       {
-        //mode: "cors",
+        mode: "cors",
         method: "PATCH",
         body: formData,
         credentials: "include",
       }
     );
     const responseJson = await res.json();
-
+    console.log(responseJson);
     if (responseJson.data) {
-      history.push(`/helpreq/${responseJson.data.data._id}`);
+      auth.login(responseJson.data);
     }
 
     history.push("/");
@@ -75,7 +79,24 @@ const PerfilEmpresa = () => {
       { mode: "cors" }
     );
 
-    setValues(await response.json(), setIsLoading(false));
+    const responseJson = await response.json();
+
+    const valores = {
+      nombre: "",
+      web: "",
+      sector: "",
+      email: "",
+      CIF: "",
+      direccion: "",
+      provincia: "",
+      telefono: "",
+      descripcion: "",
+      ...responseJson,
+    };
+    console.log(valores);
+    setValues(valores, setIsLoading(false));
+
+    setValues(valores, setIsLoading(false));
   }
 
   useEffect(() => {
@@ -225,6 +246,7 @@ const PerfilEmpresa = () => {
                       <Form.Group as={Col} controlId="validationFormikName">
                         <Form.Label>Provincia</Form.Label>
                         <Form.Control
+                          as="select"
                           type="text"
                           name="provincia"
                           placeholder="Provincia"
@@ -233,7 +255,59 @@ const PerfilEmpresa = () => {
                           onBlur={handleBlur}
                           isValid={touched.provincia && !errors.provincia}
                           isInvalid={touched.provincia && errors.provincia}
-                        />
+                        >
+                          <option></option>
+                          <option>A Coruña</option>
+                          <option>Albacete</option>
+                          <option>Álava</option>
+                          <option>Alicante</option>
+                          <option>Almería</option>
+                          <option>Asturias</option>
+                          <option>Ávila</option>
+                          <option>Badajoz</option>
+                          <option>Baleares</option>
+                          <option>Barcelona</option>
+                          <option>Burgos</option>
+                          <option>Cáceres</option>
+                          <option>Cádiz</option>
+                          <option>Cantabria</option>
+                          <option>Castellón</option>
+                          <option>Ciudad Real</option>
+                          <option>Córdoba</option>
+                          <option>Cuenca</option>
+                          <option>Girona</option>
+                          <option>Granada</option>
+                          <option>Guadalajara</option>
+                          <option>Gipuzkoa</option>
+                          <option>Huelva</option>
+                          <option>Huesca</option>
+                          <option>Jaén</option>
+                          <option>La Rioja</option>
+                          <option>Las Palmas</option>
+                          <option>León</option>
+                          <option>Lérida</option>
+                          <option>Lugo</option>
+                          <option>Madrid</option>
+                          <option>Málaga</option>
+                          <option>Murcia</option>
+                          <option>Navarra</option>
+                          <option>Ourense</option>
+                          <option>Palencia</option>
+                          <option>Pontevedra</option>
+                          <option>Salamanca</option>
+                          <option>Segovia</option>
+                          <option>Sevilla</option>
+                          <option>Soria</option>
+                          <option>Tarragona</option>
+                          <option>Santa Cruz de Tenerife</option>
+                          <option>Teruel</option>
+                          <option>Toledo</option>
+                          <option>Valencia</option>
+                          <option>Valladolid</option>
+                          <option>Vizcaya</option>
+                          <option>Zamora</option>
+                          <option>Zaragoza</option>
+                        </Form.Control>
                         <Form.Control.Feedback type="invalid">
                           {errors.provincia}
                         </Form.Control.Feedback>
@@ -262,6 +336,7 @@ const PerfilEmpresa = () => {
                         <Form.Label>Descripción</Form.Label>
                         <Form.Control
                           type="text"
+                          as="textarea"
                           name="descripcion"
                           placeholder="Descripción"
                           value={values.descripcion}
@@ -289,19 +364,23 @@ const PerfilEmpresa = () => {
                         <Form.Control.Feedback type="invalid">
                           {errors.foto}
                         </Form.Control.Feedback>
+                        <p style={{ color: "green" }}>
+                          {file.length > 0 && file[0].name}
+                        </p>
                       </Form.Group>
                     </Form.Row>
-
-                    <Button className="mr-5 mt-4" type="submit">
-                      Actualizar datos
-                    </Button>
-                    <Button
-                      variant="secondary"
-                      className="mt-4"
-                      onClick={() => history.push("/empresa/" + empresaId)}
-                    >
-                      Volver
-                    </Button>
+                    <Row className="justify-content-center">
+                      <Button className="mr-5 mt-4" type="submit">
+                        Actualizar datos
+                      </Button>
+                      <Button
+                        variant="secondary"
+                        className="mt-4"
+                        onClick={() => history.push("/empresa/" + empresaId)}
+                      >
+                        Volver
+                      </Button>
+                    </Row>
                   </Form>
                 )}
               </Formik>

@@ -33,7 +33,7 @@ const RegistroCandidato = () => {
     password: "",
   });
 
-  const [showNotificacionError, setShowNotificacionError] = useState(false);
+  const [showNotificacion, setShowNotificacion] = useState(false);
 
   const handleSubmit = async (values) => {
     const formData = new FormData();
@@ -46,6 +46,7 @@ const RegistroCandidato = () => {
     const respuesta = await fetch(
       `${process.env.REACT_APP_API_ADDRESS}/api/signup`,
       {
+        mode: "cors",
         method: "POST",
         body: formData,
         credentials: "include",
@@ -55,11 +56,15 @@ const RegistroCandidato = () => {
 
     if (respuestaJson.status === "success") {
       console.log(respuestaJson);
-      history.push("/candidato/" + respuestaJson.data._id);
+      auth.login(respuestaJson.data);
+      history.push("/");
     } else {
       //notificacion
-      setShowNotificacionError(respuestaJson.mensaje);
-      setTimeout(() => setShowNotificacionError(false), 2000);
+      setShowNotificacion({
+        mensaje: respuestaJson.mensaje,
+        variant: "danger",
+      });
+      setTimeout(() => setShowNotificacion(false), 2000);
       console.log(respuestaJson.mensaje);
     }
   };
@@ -187,7 +192,7 @@ const RegistroCandidato = () => {
                         <Form.Group as={Col} controlId="validationFormikName">
                           <Form.Label>Contraseña</Form.Label>
                           <Form.Control
-                            type="text"
+                            type="password"
                             name="password"
                             placeholder="Contraseña"
                             value={values.password}
@@ -207,11 +212,11 @@ const RegistroCandidato = () => {
                         Condiciones de uso, la Política de privacidad y la
                         Política de cookies de WeInTech.
                       </Form.Group>
-                      <Form.Row>
+                      <Form.Row className="justify-content-center">
                         <Notificacion
-                          show={showNotificacionError}
-                          variant="danger"
-                          mensaje="Registro no disponible"
+                          show={showNotificacion}
+                          variant={showNotificacion.variant}
+                          mensaje={showNotificacion.mensaje}
                         />
                       </Form.Row>
                       <Button className="mr-5 mt-4" type="submit">
@@ -222,7 +227,7 @@ const RegistroCandidato = () => {
                         className="mt-4"
                         onClick={() => history.push("/")}
                       >
-                        Back to home
+                        Volver
                       </Button>
                     </Form>
                   )}

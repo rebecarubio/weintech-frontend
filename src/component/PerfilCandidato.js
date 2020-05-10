@@ -9,20 +9,19 @@ import {
   Row,
 } from "react-bootstrap";
 import { useHistory, useParams, useLocation } from "react-router-dom";
-
+import { AuthContext } from "./../context/auth-context";
 import { Formik } from "formik";
 import * as yup from "yup";
 
 const schema = yup.object({
   nombre: yup.string().required(),
-
   primerapellido: yup.string().required(),
   segundoapellido: yup.string(),
   email: yup.string().email().required(),
-  direccion: yup.string().required(),
-  provincia: yup.string().required(),
+  direccion: yup.string(),
+  provincia: yup.string(),
   telefono: yup.string(),
-  profesion: yup.string().required(),
+  profesion: yup.string(),
 });
 
 const PerfilCandidato = () => {
@@ -31,6 +30,7 @@ const PerfilCandidato = () => {
   const history = useHistory();
   const [file, setFile] = useState({});
   const [cv, setCv] = useState({});
+  const auth = useContext(AuthContext);
 
   const [isLoading, setIsLoading] = useState(false);
   const [fetchedValues, setValues] = useState({});
@@ -54,7 +54,7 @@ const PerfilCandidato = () => {
     const res = await fetch(
       `${process.env.REACT_APP_API_ADDRESS}/api/candidato/${candidatoId}/`,
       {
-        //mode: "cors",
+        mode: "cors",
         method: "PATCH",
         body: formData,
         credentials: "include",
@@ -63,7 +63,7 @@ const PerfilCandidato = () => {
     const responseJson = await res.json();
 
     if (responseJson.data) {
-      history.push(`/helpreq/${responseJson.data.data._id}`);
+      auth.login(responseJson.data);
     }
 
     history.push("/candidato/" + candidatoId);
@@ -74,8 +74,21 @@ const PerfilCandidato = () => {
       `${process.env.REACT_APP_API_ADDRESS}/api/candidato/${candidatoId}/`,
       { mode: "cors" }
     );
+    const responseJson = await response.json();
 
-    setValues(await response.json(), setIsLoading(false));
+    const valores = {
+      nombre: "",
+      primerapellido: "",
+      segundoapellido: "",
+      email: "",
+      direccion: "",
+      provincia: "",
+      profesion: "",
+      telefono: "",
+      ...responseJson,
+    };
+    console.log(valores);
+    setValues(valores, setIsLoading(false));
   }
 
   useEffect(() => {
@@ -213,6 +226,7 @@ const PerfilCandidato = () => {
                       <Form.Group as={Col} controlId="validationFormikName">
                         <Form.Label>Provincia</Form.Label>
                         <Form.Control
+                          as="select"
                           type="text"
                           name="provincia"
                           placeholder="Provincia"
@@ -221,7 +235,59 @@ const PerfilCandidato = () => {
                           onBlur={handleBlur}
                           isValid={touched.provincia && !errors.provincia}
                           isInvalid={touched.provincia && errors.provincia}
-                        />
+                        >
+                          <option></option>
+                          <option>A Coruña</option>
+                          <option>Albacete</option>
+                          <option>Álava</option>
+                          <option>Alicante</option>
+                          <option>Almería</option>
+                          <option>Asturias</option>
+                          <option>Ávila</option>
+                          <option>Badajoz</option>
+                          <option>Baleares</option>
+                          <option>Barcelona</option>
+                          <option>Burgos</option>
+                          <option>Cáceres</option>
+                          <option>Cádiz</option>
+                          <option>Cantabria</option>
+                          <option>Castellón</option>
+                          <option>Ciudad Real</option>
+                          <option>Córdoba</option>
+                          <option>Cuenca</option>
+                          <option>Girona</option>
+                          <option>Granada</option>
+                          <option>Guadalajara</option>
+                          <option>Gipuzkoa</option>
+                          <option>Huelva</option>
+                          <option>Huesca</option>
+                          <option>Jaén</option>
+                          <option>La Rioja</option>
+                          <option>Las Palmas</option>
+                          <option>León</option>
+                          <option>Lérida</option>
+                          <option>Lugo</option>
+                          <option>Madrid</option>
+                          <option>Málaga</option>
+                          <option>Murcia</option>
+                          <option>Navarra</option>
+                          <option>Ourense</option>
+                          <option>Palencia</option>
+                          <option>Pontevedra</option>
+                          <option>Salamanca</option>
+                          <option>Segovia</option>
+                          <option>Sevilla</option>
+                          <option>Soria</option>
+                          <option>Tarragona</option>
+                          <option>Santa Cruz de Tenerife</option>
+                          <option>Teruel</option>
+                          <option>Toledo</option>
+                          <option>Valencia</option>
+                          <option>Valladolid</option>
+                          <option>Vizcaya</option>
+                          <option>Zamora</option>
+                          <option>Zaragoza</option>
+                        </Form.Control>
                         <Form.Control.Feedback type="invalid">
                           {errors.provincia}
                         </Form.Control.Feedback>
@@ -276,6 +342,9 @@ const PerfilCandidato = () => {
                         />
                       </Form.Group>
                     </Form.Row>
+                    <p style={{ color: "green" }}>
+                      {file.length > 0 && file[0].name}
+                    </p>
 
                     <Form.Row>
                       <Form.Group as={Col}>
@@ -290,6 +359,9 @@ const PerfilCandidato = () => {
                         />
                       </Form.Group>
                     </Form.Row>
+                    <p style={{ color: "green" }}>
+                      {cv.length > 0 && cv[0].name}
+                    </p>
 
                     <Button className="mr-5 mt-4" type="submit">
                       Actualizar datos
@@ -297,7 +369,7 @@ const PerfilCandidato = () => {
                     <Button
                       variant="secondary"
                       className="mt-4"
-                      onClick={() => history.push("/candidato/" + candidatoId)}
+                      onClick={() => window.history.back()}
                     >
                       Volver a mis ofertas
                     </Button>

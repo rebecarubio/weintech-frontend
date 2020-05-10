@@ -41,12 +41,19 @@ const OfertaPagina = (props) => {
   }, []);
 
   async function inscribeCandidato() {
+    if (auth.isEmpresa) {
+      setShowNotificacionError("Empresas no pueden inscribirse.");
+      setTimeout(() => setShowNotificacionError(false), 2000);
+      return;
+    }
+
+    console.log("ISEMPRESA", auth.isEmpresa);
     if (auth.userId) {
       if (
         oferta.candidatos.filter((candidato) => candidato === auth.userId)
           .length > 0
       ) {
-        setShowNotificacionError("ya estás inscrito");
+        setShowNotificacionError("Ya estás inscrito");
         setTimeout(() => setShowNotificacionError(false), 2000);
         return;
       }
@@ -54,6 +61,7 @@ const OfertaPagina = (props) => {
       const respuesta = await fetch(
         `${process.env.REACT_APP_API_ADDRESS}/api/oferta/${ofertaId}/inscribeCandidato`,
         {
+          mode: "cors",
           method: "PATCH",
           body: JSON.stringify({ candidatoId: auth.userId }),
           credentials: "include",
@@ -75,8 +83,8 @@ const OfertaPagina = (props) => {
   return (
     <>
       {!isLoading && (
-        <Card width="100">
-          <Card.Header>{oferta.sector}</Card.Header>
+        <Card className="mt-4 text-center">
+          <Card.Header>{"Sector: " + oferta.sector}</Card.Header>
           <Card.Body>
             <Card.Img
               style={{ width: "15rem" }}
@@ -87,7 +95,7 @@ const OfertaPagina = (props) => {
             />
             <Card.Title>{oferta.titulo}</Card.Title>
             <Card.Subtitle className="mb-2 text-muted">
-              {empresa.nombre}
+              {"Empresa: " + empresa.nombre}
             </Card.Subtitle>
             <Card.Text className="mb-4">{oferta.descripcion}</Card.Text>
             <Notificacion
@@ -98,7 +106,7 @@ const OfertaPagina = (props) => {
             <Notificacion
               show={showNotificacionError}
               variant="danger"
-              mensaje="Ya estás inscrito en esta oferta"
+              mensaje={showNotificacionError}
             />
             <Notificacion
               show={showNotificacionLogin}
@@ -109,8 +117,12 @@ const OfertaPagina = (props) => {
               Inscribete!
             </Button>
 
-            <Button variant="secondary" onClick={() => history.push("/")}>
-              Volver a Ofertas
+            <Button
+              variant="secondary"
+              className="ml-2"
+              onClick={() => window.history.back()}
+            >
+              Volver
             </Button>
           </Card.Body>
         </Card>

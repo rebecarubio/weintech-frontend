@@ -14,6 +14,7 @@ import {
   Spinner,
 } from "react-bootstrap";
 import Buscar from "../assets/img/buscar.png";
+import "./AutoCompleteText.css";
 
 const AutoCompleteText = (props) => {
   const [suggestions, setSuggestions] = useState([]);
@@ -78,14 +79,26 @@ const AutoCompleteText = (props) => {
   };
 
   const handleSubmit = (e) => {
+    let filtrosAPasar = {};
+
     e.preventDefault();
-    props.fetchOfertas({ titulo: text, ...filterValues });
+    //Crea un array de arrays [clave, valor] del objecto para poder iterar y manipularlo
+    const valoresNuevos = Object.entries(filterValues).filter(
+      (filter) => filter[1] && !filter[1].startsWith("--") //Si empieza por "--" no se añade
+    );
+    valoresNuevos.forEach(
+      (elemento) => (filtrosAPasar[elemento[0]] = elemento[1]) //Añade el el attributo con el valor al objeto, para crear de nuevo el objeto con los atributos filtrados
+    );
+    props.fetchOfertas({ titulo: text, ...filtrosAPasar });
   };
 
   return (
     <Accordion defaultActiveKey="0">
       <Row className="justify-content-center">
-        <Col className="justify-content-center">
+        <Col
+          className="justify-content-center"
+          style={{ backgroundColor: " rgba(0, 0, 0.2, 0.2)" }}
+        >
           <Row>
             <Collapse in={props.ofertasLength === 0 && !props.haBuscado}>
               <Image src={Buscar} fluid></Image>
@@ -94,7 +107,7 @@ const AutoCompleteText = (props) => {
 
           <Row className="mt-4 mx-1">
             <h5 id="titulo">Encuentra ofertas de trabajo</h5>
-            <InputGroup className="mb-3 ">
+            <InputGroup className="mb-3 " id="Buscador">
               <FormControl
                 value={text}
                 onChange={onTextChanged}
@@ -129,28 +142,30 @@ const AutoCompleteText = (props) => {
               </InputGroup.Append>
             </InputGroup>
             <ListGroup horizontal>
-              {Object.entries(filterValues).map((filter) => {
-                if (filter[1]) {
-                  return (
-                    <ListGroup.Item style={{ "border-style": "none" }}>
-                      <span
-                        style={{ color: "red", "font-weight": "bold" }}
-                        onClick={() => {
-                          setFilterValues({
-                            ...filterValues,
-                            [filter[0]]: undefined,
-                          });
-                        }}
-                      >
-                        X
-                      </span>{" "}
-                      {filter[0] === "salarioDesde"
-                        ? "Desde " + filter[1] + "€"
-                        : filter[1]}
-                    </ListGroup.Item>
-                  );
-                }
-              })}
+              {Object.entries(filterValues)
+                .filter((filter) => filter[1] && !filter[1].startsWith("--"))
+                .map((filter) => {
+                  if (filter[1]) {
+                    return (
+                      <ListGroup.Item className="mt-4 mr-2">
+                        <span
+                          style={{ color: "red", "font-weight": "bold" }}
+                          onClick={() => {
+                            setFilterValues({
+                              ...filterValues,
+                              [filter[0]]: undefined,
+                            });
+                          }}
+                        >
+                          X
+                        </span>{" "}
+                        {filter[0] === "salarioDesde"
+                          ? "Desde " + filter[1] + "€"
+                          : filter[1]}
+                      </ListGroup.Item>
+                    );
+                  }
+                })}
             </ListGroup>
           </Row>
           <Row>
@@ -167,6 +182,8 @@ const AutoCompleteText = (props) => {
                     onChange={handleChange}
                     value={filterValues.provincia}
                   >
+                    {" "}
+                    <option>--Provincia</option>
                     <option>A Coruña</option>
                     <option>Albacete</option>
                     <option>Álava</option>
@@ -229,6 +246,7 @@ const AutoCompleteText = (props) => {
                     as="select"
                     value={filterValues.sector}
                   >
+                    <option>-- Sector</option>
                     <option>Administrador</option>
                     <option>Administrativo</option>
                     <option>Analista</option>
@@ -278,6 +296,7 @@ const AutoCompleteText = (props) => {
                     as="select"
                     value={filterValues.salarioDesde}
                   >
+                    <option>-- Salario</option>
                     <option>3000</option>
                     <option>4000</option>
                     <option>5000</option>

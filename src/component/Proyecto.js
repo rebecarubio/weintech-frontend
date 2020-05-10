@@ -17,9 +17,9 @@ const Proyecto = (props) => {
     return (
       <Tooltip id="button-tooltip" {...props}>
         <h5>
-          Women in Tech tiene como objetivo alentar a más mujeres y personas
-          subrepresentadas en la STEM en tecnología y promover el valor de la
-          diversidad, la inclusión y la equidad en la tecnología.
+          We in Tech tiene como objetivo alentar a más mujeres y personas
+          subrepresentadas en los sectores STEM y promover la diversidad, la
+          inclusión y la equidad en la tecnología.
         </h5>
       </Tooltip>
     );
@@ -38,7 +38,7 @@ const Proyecto = (props) => {
   return (
     <Container className="p-0">
       <Row className="justify-content-center p-0">
-        <Col md={6} sm={12} className="p-0">
+        <Col md={8} sm={12} className="p-0">
           <Card style={{ border: "none" }}>
             <Card.Img md={6} src={EscaleraCut} alt="Card image" />
             <Card.ImgOverlay>

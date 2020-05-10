@@ -1,4 +1,5 @@
-import React from "react";
+import React, { useState, useContext, useEffect } from "react";
+import { AuthContext } from "../context/auth-context";
 import { useHistory, useParams, useLocation } from "react-router-dom";
 import {
   Card,
@@ -8,44 +9,112 @@ import {
   Container,
   Row,
   Button,
+  Image,
+  Col,
+  Media,
+  ButtonGroup,
+  CardColumns,
 } from "react-bootstrap";
 
-const ListaOfertasCandidato = (props) => {
+const ListaOfertasCandidato = () => {
+  const auth = useContext(AuthContext);
   const history = useHistory();
-  const { candidatoId } = useParams();
+  const [ofertas, setOfertas] = useState([]);
 
-  const buscarOfertas = async () => {
-    const res = await fetch(
-      `${process.env.REACT_APP_API_ADDRESS}/api/ofertas/${candidatoId}/`,
-      {
-        //mode: "cors",
-        method: "GET",
-        credentials: "include",
-      }
-    );
-    const responseJson = await res.json();
-    console.log("estoy aki");
-  };
+  async function fetchData() {
+    if (auth.userId) {
+      const res = await fetch(
+        `${process.env.REACT_APP_API_ADDRESS}/api/oferta/buscar?candidatoId=${auth.userId}`,
+        {
+          mode: "cors",
+          method: "GET",
+          credentials: "include",
+        }
+      );
+      const responseJson = await res.json();
+      console.log(responseJson.data);
+      setOfertas(responseJson.data);
+    }
+  }
+
+  useEffect(() => {
+    fetchData();
+  }, [auth.userId]);
 
   return (
-    <Container>
-      <Card>
-        <Card.Body>
-          <Card.Title>Mis Ofertas</Card.Title>
-          {["sm", "md", "lg", "xl"].map((breakpoint, idx) => (
-            <ListGroup horizontal={breakpoint} className="my-2" key={idx}>
-              <ListGroup.Item>This ListGroup</ListGroup.Item>
-              <ListGroup.Item>renders horizontally</ListGroup.Item>
-              <ListGroup.Item>on {breakpoint}</ListGroup.Item>
-              <ListGroup.Item>and above!</ListGroup.Item>
-              <ListGroup.Item>
-                <Card.Link href="#">Eliminar</Card.Link>
-              </ListGroup.Item>
-            </ListGroup>
-          ))}
-        </Card.Body>
-      </Card>
-    </Container>
+    <>
+      <Container>
+        {ofertas.length > 0 && (
+          <>
+            <Card className="mt-4" style={{ borderStyle: "none" }}>
+              <h4>Mis candidaturas: </h4>
+            </Card>
+            <CardColumns className="mt-2">
+              {ofertas.map((oferta, i) => (
+                <Card md={4}>
+                  <Media className="p-2">
+                    <img
+                      className="m-2 p-1"
+                      width="64rem"
+                      src={
+                        `${process.env.REACT_APP_API_ADDRESS}/uploads/` +
+                        oferta.empresa.foto
+                      }
+                    />
+                    <h5>{oferta.titulo}</h5>
+                  </Media>
+
+                  <Card.Body>
+                    <Card.Text>
+                      {oferta.descripcion.substring(0, 200) +
+                        (oferta.descripcion.length > 200 ? "..." : "")}
+                    </Card.Text>
+                  </Card.Body>
+                  <ListGroup className="list-group-flush">
+                    <ListGroupItem>{oferta.puesto}</ListGroupItem>
+                    <ListGroupItem>{oferta.sector}</ListGroupItem>
+                    <ListGroupItem>{oferta.salario}</ListGroupItem>
+                  </ListGroup>
+                  <Card.Body className="p-1">
+                    <Row className=" justify-content-center ">
+                      <ButtonGroup>
+                        <Button
+                          variant="info"
+                          onClick={() => history.push("/oferta/" + oferta._id)}
+                        >
+                          Ver oferta
+                        </Button>
+                      </ButtonGroup>
+                    </Row>
+                  </Card.Body>
+                </Card>
+              ))}
+            </CardColumns>
+          </>
+        )}
+
+        {ofertas.length === 0 && (
+          <Row>
+            <Col>
+              <Card
+                md={12}
+                fluid
+                className="mt-2 text-center"
+                bg="light"
+                border="info"
+              >
+                <Card.Title className="m-2 text-muted">
+                  Todavía no te has inscrito a ninguna oferta.
+                </Card.Title>
+                <Card.Text className="m-2 text-muted">
+                  Usa el buscador para encontrar ofertas.
+                </Card.Text>
+              </Card>
+            </Col>
+          </Row>
+        )}
+      </Container>
+    </>
   );
 };
 

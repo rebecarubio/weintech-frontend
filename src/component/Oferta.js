@@ -6,12 +6,16 @@ const Oferta = (props) => {
   const history = useHistory();
 
   return (
-    <Card width="100">
+    <Card md={12} className="mt-2">
       <Card.Header>{props.oferta.sector}</Card.Header>
       <Card.Body>
         <Card.Img variant="top" />
         <Card.Title>{props.oferta.titulo}</Card.Title>
-        <Card.Text>{props.oferta.descripcion}</Card.Text>
+        <Card.Text>
+          {" "}
+          {props.oferta.descripcion.substring(0, 300) +
+            (props.oferta.descripcion.length > 300 ? "..." : "")}
+        </Card.Text>
         <Button
           onClick={() => history.push("/oferta/" + props.oferta._id)}
           variant="primary"

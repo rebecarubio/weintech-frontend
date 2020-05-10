@@ -25,12 +25,13 @@ const LoginCandidato = () => {
   const auth = useContext(AuthContext);
   const history = useHistory();
 
-  const [showNotificacionError, setShowNotificacionError] = useState(false);
+  const [showNotificacion, setShowNotificacion] = useState(false);
 
   const handleSubmit = async (values) => {
     const respuesta = await fetch(
       `${process.env.REACT_APP_API_ADDRESS}/api/login`,
       {
+        mode: "cors",
         method: "POST",
         body: JSON.stringify(values),
         credentials: "include",
@@ -43,10 +44,13 @@ const LoginCandidato = () => {
     console.log(respuestaJson);
     if (respuestaJson.status === "success") {
       auth.login(respuestaJson.data);
-      history.push("/candidato/" + respuestaJson.data._id);
+      history.push("/");
     } else {
-      setShowNotificacionError(respuestaJson.mensaje);
-      setTimeout(() => setShowNotificacionError(false), 2000);
+      setShowNotificacion({
+        mensaje: respuestaJson.mensaje,
+        variant: "danger",
+      });
+      setTimeout(() => setShowNotificacion(false), 2000);
     }
   };
 
@@ -123,11 +127,11 @@ const LoginCandidato = () => {
                         ¿Has olvidado tu contraseña? Pulsa aquí para restaurarla
                       </Card.Link>
                     </Form.Label>
-                    <Form.Row>
+                    <Form.Row className="justify-content-center">
                       <Notificacion
-                        show={showNotificacionError}
-                        variant="danger"
-                        mensaje="Candidato no registrado. Si lo desea puede crear un cuenta"
+                        show={showNotificacion}
+                        variant={showNotificacion.variant}
+                        mensaje={showNotificacion.mensaje}
                       />
                     </Form.Row>
 

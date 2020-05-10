@@ -6,11 +6,10 @@ import RegistroCandidato from "./component/RegistroCandidato";
 import LoginCandidato from "./component/LoginCandidato";
 import LoginEmpresa from "./component/LoginEmpresa";
 import RegistroEmpresa from "./component/RegistroEmpresa";
-import ListaOfertasCandidato from "./component/ListaOfertasCandidato";
 import { Router, Route, Switch, BrowserRouter, Link } from "react-router-dom";
 import { AuthContext } from "./context/auth-context";
 import PerfilCandidato from "./component/PerfilCandidato";
-import { Col, Row, Container, Jumbotron } from "react-bootstrap";
+import { Col, Row, Container, Jumbotron, Card } from "react-bootstrap";
 import buildUrl from "build-url";
 
 import ListaOfertasEmpresa from "./component/ListaOfertasEmpresa";
@@ -20,6 +19,10 @@ import OfertaPagina from "./component/OfertaPagina";
 import Proyecto from "./component/Proyecto";
 import Contacta from "./component/Contacta";
 import ListaCandidatosInscritos from "./component/ListaCandidatosInscritos";
+import CandidatoPagina from "./component/CandidatoPagina";
+import ListaOfertasCandidato from "./component/ListaOfertasCandidato";
+import { CardBody } from "react-bootstrap/Card";
+
 const App = () => {
   const [userObj, setUserObj] = useState({});
   const [userId, setUserId] = useState(null);
@@ -29,12 +32,9 @@ const App = () => {
   const [haBuscado, setHaBuscado] = useState(false);
 
   const login = (userObj) => {
-    //if (expiration < Date.now()) return logout();
-
     localStorage.setItem(
       "currentUser",
       JSON.stringify({
-        //expiration: expiration ? expiration : Date.now() + 120 * 60 * 1000,
         user: userObj,
       })
     );
@@ -55,8 +55,8 @@ const App = () => {
   const fetchOfertas = async (opciones) => {
     setHaBuscado(true);
     setCargando(true);
-    const { titulo, sector, provincia, empresa, salarioDesde } = opciones;
-
+    const { titulo, sector, provincia, salarioDesde } = opciones;
+    console.log(opciones);
     const url = buildUrl(
       `${process.env.REACT_APP_API_ADDRESS}/api/oferta/buscar`,
       {
@@ -71,33 +71,6 @@ const App = () => {
     const respuestaJson = await respuesta.json();
     setOfertas(respuestaJson.data);
     setCargando(false);
-  };
-
-  const deleteOferta = async (idOferta) => {
-    await fetch(`${process.env.REACT_APP_API_ADDRESS}/api/oferta` + idOferta, {
-      method: "DELETE",
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
-      },
-    })
-      //.then(M.toast({ html: "Oferta eliminada correctamente" }))
-      .then(setOfertas(ofertas.filter((oferta) => oferta._id !== idOferta)))
-      .catch((e) => console.log(e));
-  };
-
-  const editOferta = async (idOferta) => {
-    await fetch(`${process.env.REACT_APP_API_ADDRESS}/api/oferta/` + idOferta, {
-      method: "PATCH",
-      //body:
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
-      },
-    })
-      //.then(M.toast({ html: "Oferta eliminada correctamente" }))
-      .then(setOfertas(ofertas.filter((oferta) => oferta._id !== idOferta)))
-      .catch((e) => console.log(e));
   };
 
   return (
@@ -124,6 +97,9 @@ const App = () => {
                 <Route path="/login">
                   <LoginCandidato />
                 </Route>
+                <Route path="/espaciocandidato">
+                  <ListaOfertasCandidato />
+                </Route>
                 <Route path="/signupempresa">
                   <RegistroEmpresa />
                 </Route>
@@ -134,10 +110,7 @@ const App = () => {
                   <PerfilCandidato />
                 </Route>
                 <Route path="/candidato/:candidatoId">
-                  <ListaOfertasCandidato />
-                </Route>
-                <Route path="/empresa/:empresaId/modificarOferta/:ofertaId">
-                  <ListaOfertasEmpresa />
+                  <CandidatoPagina />
                 </Route>
                 <Route path="/empresa/crear/:empresaId">
                   <CrearOferta />
@@ -170,21 +143,23 @@ const App = () => {
                     cargando={cargando}
                   />
 
-                  <Row>
-                    {ofertas.length > 0 && (
-                      <MostrarOfertas
-                        deleteOferta={deleteOferta}
-                        ofertas={ofertas}
-                        editOferta={editOferta}
-                      />
-                    )}
-                    {haBuscado && ofertas.length === 0 && (
-                      <Jumbotron md={12}>
-                        <h1>No hay ofertas con esos criterios</h1>
-                        <p>Intenta ampliar tu búsqueda</p>
-                      </Jumbotron>
-                    )}
-                  </Row>
+                  {ofertas.length > 0 && <MostrarOfertas ofertas={ofertas} />}
+                  {haBuscado && ofertas.length === 0 && (
+                    <Card
+                      md={12}
+                      fluid
+                      className="mt-2 text-center"
+                      bg="light"
+                      border="info"
+                    >
+                      <Card.Title className="m-2 text-muted">
+                        No existen ofertas con estos criterios
+                      </Card.Title>
+                      <Card.Text className="m-2 text-muted">
+                        Intenta ampliar tu búsqueda{" "}
+                      </Card.Text>
+                    </Card>
+                  )}
                 </Route>
               </Switch>
             </Col>

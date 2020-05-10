@@ -40,8 +40,7 @@ const CrearOferta = (props) => {
     }
   );
 
-  const [showNotificacionError, setShowNotificacionError] = useState(false);
-  const [showNotificacionSuccess, setShowNotificacionSuccess] = useState(false);
+  const [showNotificacion, setShowNotificacion] = useState(false);
 
   const handleSubmit = async (values) => {
     const formData = new FormData();
@@ -61,27 +60,35 @@ const CrearOferta = (props) => {
         method: props.oferta ? "PATCH" : "POST",
         body: formData,
         credentials: "include",
+        mode: "cors",
       }
     );
     const respuestaJson = await respuesta.json();
 
     if (respuestaJson.status === "success") {
       console.log(respuestaJson);
-      setShowNotificacionSuccess("Oferta creada correctamente");
-      setTimeout(() => setShowNotificacionSuccess(false), 2000);
+      setShowNotificacion({
+        mensaje: respuestaJson.mensaje,
+        variant: "success",
+      });
+      setTimeout(() => setShowNotificacion(false), 2000);
       console.log(respuestaJson.mensaje);
       //history.push("/candidato/" + respuestaJson.data._id);
     } else {
       //notificacion
-      setShowNotificacionError(respuestaJson.mensaje);
-      setTimeout(() => setShowNotificacionError(false), 2000);
+      setShowNotificacion({
+        mensaje: respuestaJson.mensaje,
+        variant: "danger",
+      });
+
+      setTimeout(() => setShowNotificacion(false), 2000);
       console.log(respuestaJson.mensaje);
     }
   };
 
   return (
     <>
-      <Row className=" justify-content-center ">
+      <Row className="mb-2 justify-content-center ">
         <Col md={6}>
           <Card fluid className="p-4 mt-4 justify-content-center ">
             <Card.Title>
@@ -155,6 +162,7 @@ const CrearOferta = (props) => {
                           <Form.Label>Descripción</Form.Label>
                           <Form.Control
                             type="text"
+                            as="textarea"
                             name="descripcion"
                             placeholder="descripcion"
                             value={values.descripcion}
@@ -321,36 +329,31 @@ const CrearOferta = (props) => {
                         Política de cookies de WeInTech.`
                           : " "}
                       </Form.Group>
-                      <Form.Row>
+                      <Form.Row className="justify-content-center">
                         <Notificacion
-                          show={showNotificacionError}
-                          variant="danger"
-                          mensaje="Error al crear oferta"
+                          show={showNotificacion}
+                          variant={showNotificacion.variant}
+                          mensaje={showNotificacion.mensaje}
                         />
                       </Form.Row>
-                      <Form.Row>
-                        <Notificacion
-                          show={showNotificacionSuccess}
-                          variant="success"
-                          mensaje="Oferta creada correctamente"
-                        />
-                      </Form.Row>
-                      <Button className="mr-5 mt-4" type="submit">
-                        {!props.oferta ? "Aceptar y crear" : "Actualizar"}
-                      </Button>
-                      <Button
-                        variant="secondary"
-                        className="mt-4"
-                        onClick={() => {
-                          if (props.setOfertaEditar) {
-                            props.setOfertaEditar();
-                          } else {
-                            history.push("/empresa/" + empresaId);
-                          }
-                        }}
-                      >
-                        Volver
-                      </Button>
+                      <Row className="justify-content-center">
+                        <Button className="mr-5 mt-4" type="submit">
+                          {!props.oferta ? "Aceptar y crear" : "Actualizar"}
+                        </Button>
+                        <Button
+                          variant="secondary"
+                          className="mt-4"
+                          onClick={() => {
+                            if (props.setOfertaEditar) {
+                              props.setOfertaEditar();
+                            } else {
+                              history.push("/empresa/" + empresaId);
+                            }
+                          }}
+                        >
+                          Volver
+                        </Button>
+                      </Row>
                     </Form>
                   )}
                 </Formik>
@@ -359,7 +362,6 @@ const CrearOferta = (props) => {
           </Card>
         </Col>
       </Row>
-      )
     </>
   );
 };
